@@ -25,7 +25,7 @@ public class _TxtDocSrv implements TextDocumentService {
         "try", "void", "volatile", "while"
     );
     
-    public JavaTextDocumentService(JavaLspServer server) {
+    public _TxtDocSrv(JavaLspServer server) {
         this.server = server;
     }
 

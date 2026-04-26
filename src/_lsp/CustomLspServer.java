@@ -1,7 +1,4 @@
 package _lsp;
-
-package com.example;
-
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;

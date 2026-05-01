@@ -1,324 +1,153 @@
 package _lsp;
-
-package com.example;
-
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
-
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.google.gson.*;
+import _lsp.CustomLanguageClient;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
-// Custom interface for extension methods (beyond standard LSP)
-interface CustomLanguageServer extends LanguageServer {
-    @JsonRequest("custom/getData")
-    CompletableFuture<CustomResponse> getData(CustomRequest request);
+// Configuration holder
+class ServerConfig {
+    boolean enableDiagnostics = true;
+    int maxProblems = 100;
+    String javaHome = "/usr/lib/jvm/default";
+    List<String> classpath = new ArrayList<>();
+    Map<String, Object> customSettings = new HashMap<>();
+    FormattingOptions formattingOptions = new FormattingOptions(4, false);
 
-    @JsonNotification("custom/notify")
-    void handleNotification(CustomNotification notification);
+    @Override
+    public String toString() {
+        return "ServerConfig{" +
+                "enableDiagnostics=" + enableDiagnostics +
+                ", maxProblems=" + maxProblems +
+                ", javaHome='" + javaHome + '\'' +
+                ", classpath=" + classpath +
+                ", formattingOptions=" + formattingOptions +
+                '}';
+    }
 }
 
-// Custom interface for client methods (server calls client)
+class FormattingOptions {
+    int indentSize;
+    boolean useTabs;
+    int maxLineLength;
+
+    public FormattingOptions(int indentSize, boolean useTabs) {
+        this.indentSize = indentSize;
+        this.useTabs = useTabs;
+        this.maxLineLength = 120;
+    }
+
+    @Override
+    public String toString() {
+        return "{indentSize=" + indentSize +
+                ", useTabs=" + useTabs +
+                ", maxLineLength=" + maxLineLength + "}";
+    }
+}
+
 interface CustomLanguageClient extends LanguageClient {
-    @JsonNotification("custom/clientNotification")
-    void sendClientNotification(CustomClientNotification notification);
-
-    @JsonRequest("custom/askClient")
-    CompletableFuture<ClientResponse> askClient(ClientQuestion question);
+    @JsonNotification("custom/configurationChanged")
+    void configurationChanged(String message);
 }
 
-// Request/Response DTOs
-class CustomRequest {
-    private String query;
-    private int count;
-
-    public CustomRequest() {
-    }
-
-    public CustomRequest(String query, int count) {
-        this.query = query;
-        this.count = count;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-}
-
-class CustomResponse {
-    private String result;
-    private int total;
-    private double score;
-
-    public CustomResponse() {
-    }
-
-    public CustomResponse(String result, int total, double score) {
-        this.result = result;
-        this.total = total;
-        this.score = score;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public int getTotal() {
-        return total;
-    }
-
-    public void setTotal(int total) {
-        this.total = total;
-    }
-
-    public double getScore() {
-        return score;
-    }
-
-    public void setScore(double score) {
-        this.score = score;
-    }
-}
-
-class CustomNotification {
-    private String message;
-    private int priority;
-    private long timestamp;
-
-    public CustomNotification() {
-    }
-
-    public CustomNotification(String message, int priority, long timestamp) {
-        this.message = message;
-        this.priority = priority;
-        this.timestamp = timestamp;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-}
-
-class CustomClientNotification {
-    private String status;
-    private int code;
-
-    public CustomClientNotification() {
-    }
-
-    public CustomClientNotification(String status, int code) {
-        this.status = status;
-        this.code = code;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-}
-
-class ClientQuestion {
-    private String question;
-    private int timeout;
-
-    public ClientQuestion() {
-    }
-
-    public ClientQuestion(String question, int timeout) {
-        this.question = question;
-        this.timeout = timeout;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
-    public int getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-}
-
-class ClientResponse {
-    private String answer;
-    private boolean confirmed;
-    private int retryCount;
-
-    public ClientResponse() {
-    }
-
-    public ClientResponse(String answer, boolean confirmed, int retryCount) {
-        this.answer = answer;
-        this.confirmed = confirmed;
-        this.retryCount = retryCount;
-    }
-
-    public String getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
-
-    public boolean isConfirmed() {
-        return confirmed;
-    }
-
-    public void setConfirmed(boolean confirmed) {
-        this.confirmed = confirmed;
-    }
-
-    public int getRetryCount() {
-        return retryCount;
-    }
-
-    public void setRetryCount(int retryCount) {
-        this.retryCount = retryCount;
-    }
-}
-
-public class JavaLspServer implements CustomLanguageServer, LanguageClientAware {
+public class JavaLspServer implements LanguageServer, LanguageClientAware {
 
     private CustomLanguageClient client;
-    private final TextDocumentService textDocumentService;
+    private final JavaTextDocumentService textDocumentService;
+    private final JavaWorkspaceService workspaceService;
+    private ServerConfig config = new ServerConfig();
+    private final Gson gson = new GsonBuilder().create();
 
     public JavaLspServer() {
-        this.textDocumentService = new JavaTextDocumentService();
+        this.textDocumentService = new JavaTextDocumentService(this);
+        this.workspaceService = new JavaWorkspaceService(this);
     }
 
     public static void main(String[] args) throws Exception {
         JavaLspServer server = new JavaLspServer();
 
-        // Create launcher with custom interfaces
         Launcher<CustomLanguageClient> launcher = LSPLauncher.createServerLauncher(
                 server,
                 System.in,
-                System.out,
-                Executors.newCachedThreadPool(),
-                (consumer) -> {
-                });
+                System.out
+        );
+          //      Executors.newCachedThreadPool(),
+            //    (consumer) -> {
+              //  });*/
 
         server.connect(launcher.getRemoteProxy());
         launcher.startListening();
     }
 
-    // ============ Custom Methods (Called by Client) ============
-
-    @Override
-    public CompletableFuture<CustomResponse> getData(CustomRequest request) {
-        System.err.println("[SERVER] Received request: query=" + request.getQuery() +
-                ", count=" + request.getCount());
-
-        // Process the request
-        String processedResult = "Processed: " + request.getQuery().toUpperCase();
-        int totalItems = request.getCount() * 10;
-        double confidence = 0.95;
-
-        CustomResponse response = new CustomResponse(processedResult, totalItems, confidence);
-        return CompletableFuture.completedFuture(response);
-    }
-
-    @Override
-    public void handleNotification(CustomNotification notification) {
-        System.err.println("[SERVER] Received notification: " +
-                notification.getMessage() +
-                " (priority=" + notification.getPriority() +
-                ", timestamp=" + notification.getTimestamp() + ")");
-
-        // Send a notification back to client after processing
-        if (notification.getPriority() > 5) {
-            client.sendClientNotification(
-                    new CustomClientNotification("HIGH_PRIORITY_PROCESSED", 200));
-        }
-
-        // Ask client a question (request/response)
-        client.askClient(new ClientQuestion("Confirm action?", 5000))
-                .thenAccept(response -> {
-                    System.err.println("[SERVER] Client answered: " +
-                            response.getAnswer() +
-                            " (confirmed=" + response.isConfirmed() +
-                            ", retries=" + response.getRetryCount() + ")");
-                });
-    }
-
-    // ============ Standard LSP Methods ============
-
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+        System.err.println("[SERVER] Initializing...");
+
+        // Request specific settings during initialization
+        if (params.getInitializationOptions() != null) {
+            parseInitializationOptions(params.getInitializationOptions());
+        }
+
         ServerCapabilities capabilities = new ServerCapabilities();
-        capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
+        capabilities.setTextDocumentSync(TextDocumentSyncKind.Incremental);
+        capabilities.setCompletionProvider(new CompletionOptions(true, Arrays.asList(".", "@")));
+        capabilities.setHoverProvider(true);
+        capabilities.setDefinitionProvider(true);
+        capabilities.setReferencesProvider(true);
+        capabilities.setDocumentFormattingProvider(true);
+        capabilities.setCodeActionProvider(true);
 
         InitializeResult result = new InitializeResult(capabilities);
+        result.setServerInfo(new ServerInfo("Java LSP Server", "1.0.0"));
+
         return CompletableFuture.completedFuture(result);
     }
 
     @Override
     public void initialized(InitializedParams params) {
-        // Send welcome notification to client
-        client.sendClientNotification(
-                new CustomClientNotification("SERVER_READY", 100));
+        System.err.println("[SERVER] Initialized. Current config: " + config);
+        client.configurationChanged("Server initialized with config: " + config);
+    }
 
-        System.err.println("[SERVER] Initialized and ready");
+    private void parseInitializationOptions(Object options) {
+        if (options instanceof JsonObject) {
+            JsonObject json = (JsonObject) options;
+
+            if (json.has("javaHome") && json.get("javaHome").isJsonPrimitive()) {
+                config.javaHome = json.get("javaHome").getAsString();
+            }
+
+            if (json.has("maxProblems") && json.get("maxProblems").isJsonPrimitive()) {
+                config.maxProblems = json.get("maxProblems").getAsInt();
+            }
+
+            System.err.println("[SERVER] Parsed initial options: javaHome=" + config.javaHome);
+        }
+    }
+
+    public ServerConfig getConfig() {
+        return config;
+    }
+
+    @Override
+    public TextDocumentService getTextDocumentService() {
+        return textDocumentService;
+    }
+
+    @Override
+    public WorkspaceService getWorkspaceService() {
+        return workspaceService;
+    }
+
+    @Override
+    public void connect(LanguageClient client) {
+        this.client = (CustomLanguageClient) client;
     }
 
     @Override
@@ -330,58 +159,231 @@ public class JavaLspServer implements CustomLanguageServer, LanguageClientAware 
     public void exit() {
         System.exit(0);
     }
-
-    @Override
-    public TextDocumentService getTextDocumentService() {
-        return textDocumentService;
-    }
-
-    @Override
-    public WorkspaceService getWorkspaceService() {
-        return new JavaWorkspaceService();
-    }
-
-    @Override
-    public void connect(LanguageClient client) {
-        this.client = (CustomLanguageClient) client;
-    }
-}
-
-// Simple implementations for completeness
-class JavaTextDocumentService implements TextDocumentService {
-    @Override
-    public void didOpen(DidOpenTextDocumentParams params) {
-    }
-
-    @Override
-    public void didChange(DidChangeTextDocumentParams params) {
-    }
-
-    @Override
-    public void didClose(DidCloseTextDocumentParams params) {
-    }
-
-    @Override
-    public void didSave(DidSaveTextDocumentParams params) {
-    }
-
-    @Override
-    public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
-        return CompletableFuture.completedFuture(null);
-    }
 }
 
 class JavaWorkspaceService implements WorkspaceService {
+
+    private final JavaLspServer server;
+
+    public JavaWorkspaceService(JavaLspServer server) {
+        this.server = server;
+    }
+
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
-        return CompletableFuture.completedFuture(null);
+        String command = params.getCommand();
+        List<Object> args = params.getArguments();
+
+        System.err.println("[SERVER] Executing command: " + command + " with args: " + args);
+
+        switch (command) {
+            case "java.server.reloadConfig":
+                System.err.println("[SERVER] Reloading configuration...");
+                return CompletableFuture.completedFuture("Configuration reloaded");
+
+            case "java.server.clearCache":
+                System.err.println("[SERVER] Clearing cache...");
+                return CompletableFuture.completedFuture("Cache cleared");
+
+            default:
+                return CompletableFuture.completedFuture("Unknown command: " + command);
+        }
     }
 
     @Override
     public void didChangeConfiguration(DidChangeConfigurationParams params) {
+        System.err.println("[SERVER] Configuration changed!");
+        ServerConfig config = server.getConfig();
+
+        // Parse the new configuration
+        Object settings = params.getSettings();
+
+        if (settings instanceof JsonObject) {
+            JsonObject root = (JsonObject) settings;
+
+            // Typical VS Code structure: settings.java.server.*
+            if (root.has("java")) {
+                JsonObject javaSettings = root.getAsJsonObject("java");
+
+                if (javaSettings.has("server")) {
+                    JsonObject serverSettings = javaSettings.getAsJsonObject("server");
+
+                    // Parse each setting
+                    if (serverSettings.has("enableDiagnostics")) {
+                        config.enableDiagnostics = serverSettings.get("enableDiagnostics").getAsBoolean();
+                        System.err.println("[SERVER] enableDiagnostics = " + config.enableDiagnostics);
+                    }
+
+                    if (serverSettings.has("maxProblems")) {
+                        config.maxProblems = serverSettings.get("maxProblems").getAsInt();
+                        System.err.println("[SERVER] maxProblems = " + config.maxProblems);
+                    }
+
+                    if (serverSettings.has("javaHome")) {
+                        config.javaHome = serverSettings.get("javaHome").getAsString();
+                        System.err.println("[SERVER] javaHome = " + config.javaHome);
+                    }
+
+                    if (serverSettings.has("classpath")) {
+                        config.classpath.clear();
+                        JsonArray cp = serverSettings.getAsJsonArray("classpath");
+                        for (JsonElement element : cp) {
+                            config.classpath.add(element.getAsString());
+                        }
+                        System.err.println("[SERVER] classpath = " + config.classpath);
+                    }
+
+                    if (serverSettings.has("formatting")) {
+                        JsonObject fmt = serverSettings.getAsJsonObject("formatting");
+
+                        if (fmt.has("indentSize")) {
+                            config.formattingOptions.indentSize = fmt.get("indentSize").getAsInt();
+                        }
+
+                        if (fmt.has("useTabs")) {
+                            config.formattingOptions.useTabs = fmt.get("useTabs").getAsBoolean();
+                        }
+
+                        if (fmt.has("maxLineLength")) {
+                            config.formattingOptions.maxLineLength = fmt.get("maxLineLength").getAsInt();
+                        }
+
+                        System.err.println("[SERVER] formatting = " + config.formattingOptions);
+                    }
+
+                    // Handle nested objects
+                    if (serverSettings.has("customSettings")) {
+                        JsonObject custom = serverSettings.getAsJsonObject("customSettings");
+                        config.customSettings.clear();
+
+                        for (Map.Entry<String, JsonElement> entry : custom.entrySet()) {
+                            if (entry.getValue().isJsonPrimitive()) {
+                                JsonPrimitive primitive = entry.getValue().getAsJsonPrimitive();
+                                if (primitive.isString()) {
+                                    config.customSettings.put(entry.getKey(), primitive.getAsString());
+                                } else if (primitive.isNumber()) {
+                                    config.customSettings.put(entry.getKey(), primitive.getAsNumber());
+                                } else if (primitive.isBoolean()) {
+                                    config.customSettings.put(entry.getKey(), primitive.getAsBoolean());
+                                }
+                            }
+                        }
+                        System.err.println("[SERVER] customSettings = " + config.customSettings);
+                    }
+                }
+            }
+
+            // Notify client about config change
+            CustomLanguageClient client = (CustomLanguageClient) server;
+            client.configurationChanged("Configuration updated: " + config);
+        }
+
+        System.err.println("[SERVER] New config: " + config);
     }
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+        System.err.println("[SERVER] Watched files changed:");
+        for (FileEvent event : params.getChanges()) {
+            System.err.println("  " + event.getType() + ": " + event.getUri());
+        }
+    }
+}
+
+class JavaTextDocumentService implements TextDocumentService {
+
+    private final JavaLspServer server;
+    private final Map<String, TextDocumentItem> documents = new HashMap<>();
+
+    public JavaTextDocumentService(JavaLspServer server) {
+        this.server = server;
+    }
+
+    @Override
+    public void didOpen(DidOpenTextDocumentParams params) {
+        documents.put(params.getTextDocument().getUri(), params.getTextDocument());
+        System.err.println("[SERVER] Opened: " + params.getTextDocument().getUri());
+
+        // Use config to determine diagnostics behavior
+        ServerConfig config = server.getConfig();
+        if (config.enableDiagnostics) {
+            System.err.println("[SERVER] Diagnostics enabled, max problems: " + config.maxProblems);
+        }
+    }
+
+    @Override
+    public void didChange(DidChangeTextDocumentParams params) {
+        String uri = params.getTextDocument().getUri();
+        TextDocumentItem doc = documents.get(uri);
+
+        if (doc != null && !params.getContentChanges().isEmpty()) {
+            String newText = params.getContentChanges().get(0).getText();
+            documents.put(uri, new TextDocumentItem(
+                    doc.getUri(), doc.getLanguageId(), doc.getVersion(), newText));
+        }
+    }
+
+    @Override
+    public void didClose(DidCloseTextDocumentParams params) {
+        documents.remove(params.getTextDocument().getUri());
+    }
+
+    @Override
+    public void didSave(DidSaveTextDocumentParams params) {
+        System.err.println("[SERVER] Saved: " + params.getTextDocument().getUri());
+    }
+
+    @Override
+    public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
+            CompletionParams params) {
+
+        ServerConfig config = server.getConfig();
+
+        List<CompletionItem> items = new ArrayList<>();
+
+        // Add completion items based on config
+        if (config.enableDiagnostics) {
+            CompletionItem item = new CompletionItem("sysout");
+            item.setKind(CompletionItemKind.Snippet);
+            item.setDetail("System.out.println");
+            item.setInsertText("System.out.println(${1});");
+            item.setInsertTextFormat(InsertTextFormat.Snippet);
+            items.add(item);
+        }
+
+        return CompletableFuture.completedFuture(Either.forLeft(items));
+    }
+
+    @Override
+    public CompletableFuture<Hover> hover(HoverParams params) {
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
+            DefinitionParams params) {
+        return CompletableFuture.completedFuture(Either.forLeft(Collections.emptyList()));
+    }
+
+    @Override
+    public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+        return CompletableFuture.completedFuture(Collections.emptyList());
+    }
+
+    @Override
+    public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
+        ServerConfig config = server.getConfig();
+        FormattingOptions options = config.formattingOptions;
+
+        System.err.println("[SERVER] Formatting with: indentSize=" + options.indentSize +
+                ", useTabs=" + options.useTabs);
+
+        // Apply formatting based on config...
+        return CompletableFuture.completedFuture(Collections.emptyList());
+    }
+
+    @Override
+    public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
+        return CompletableFuture.completedFuture(Collections.emptyList());
     }
 }

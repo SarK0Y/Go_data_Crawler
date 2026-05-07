@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
+import _lsp._TxtDocSrv;
+import _lsp._WorkspaceService;
 public class _Server implements LanguageServer, LanguageClientAware {
     
     private LanguageClient client;
@@ -19,8 +21,8 @@ public class _Server implements LanguageServer, LanguageClientAware {
     private final WorkspaceService workspaceService;
     
     public _Server() {
-        this.textDocumentService = new JavaTextDocumentService(this);
-        this.workspaceService = new JavaWorkspaceService();
+        this.textDocumentService = new _TxtDocSrv(this);
+        this.workspaceService = new _WorkspaceService();
     }
 
     public static void main(String[] args) {

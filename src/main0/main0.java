@@ -1,6 +1,6 @@
 package main0;
 
-import static basix_funx.basix_funx.prnt;
+import static basix_funx._basix_funx.prnt;
 import _lsp._Server;
 import _lsp._TxtDocSrv;
 public class main0{

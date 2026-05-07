@@ -239,7 +239,7 @@ public class CustomLspServer implements CustomLanguageServer, LanguageClientAwar
     private CustomLanguageClient client;
     private final TextDocumentService textDocumentService;
 
-    public JavaLspServer() {
+    public CustomLspServer() {
         this.textDocumentService = new _TxtDocSrv();
     }
 

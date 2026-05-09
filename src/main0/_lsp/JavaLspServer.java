@@ -6,7 +6,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 import com.google.gson.*;
-import _lsp.CustomLanguageClient;
+import _lsp.CustomLanguageClient.CustomLanguageClient;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -51,7 +51,7 @@ class FormattingOptions {
     }
 }
 
-interface CustomLanguageClient extends LanguageClient {
+interface CustomLanguageClient_ extends CustomLanguageClient {
     @JsonNotification("custom/configurationChanged")
     void configurationChanged(String message);
 }

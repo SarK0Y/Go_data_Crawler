@@ -12,7 +12,7 @@ import _lsp.JavaWorkspaceService;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-
+import io.vavr.control.Either;
 // Configuration holder
 class ServerConfig {
     boolean enableDiagnostics = true;

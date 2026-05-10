@@ -5,7 +5,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
-
+import io.vavr.control.Either;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
@@ -382,3 +382,18 @@ class JavaWorkspaceService implements WorkspaceService {
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
     }
 }
+//fn
+/*
+    public final class Either<L,R> {
+  private final L left;
+  private final R right;
+  private Either(L l, R r){ this.left=l; this.right=r; }
+  public static <L,R> Either<L,R> left(L l){ return new Either<>(l,null); }
+  public static <L,R> Either<L,R> right(R r){ return new Either<>(null,r); }
+  public boolean isLeft(){ return left!=null; }
+  public boolean isRight(){ return right!=null; }
+  public L getLeft(){ return left; }
+  public R getRight(){ return right; }
+}
+
+*/

@@ -7,6 +7,8 @@ import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 import com.google.gson.*;
 import _lsp.CustomLanguageClient.CustomLanguageClient;
+import _lsp.JavaTextDocumentService;
+import _lsp.JavaWorkspaceService;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -58,21 +60,21 @@ interface CustomLanguageClient_ extends CustomLanguageClient {
 
 public class JavaLspServer implements LanguageServer, LanguageClientAware {
 
-    private CustomLanguageClient client;
-    private final JavaTextDocumentService textDocumentService;
-    private final JavaWorkspaceService workspaceService;
+    private CustomLanguageClient_ client;
+    private final JavaTextDocumentService_ textDocumentService;
+    private final JavaWorkspaceService_ workspaceService;
     private ServerConfig config = new ServerConfig();
     private final Gson gson = new GsonBuilder().create();
 
     public JavaLspServer() {
-        this.textDocumentService = new JavaTextDocumentService(this);
-        this.workspaceService = new JavaWorkspaceService(this);
+        this.textDocumentService = new JavaTextDocumentService_(this);
+        this.workspaceService = new JavaWorkspaceService_(this);
     }
 
     public static void main(String[] args) throws Exception {
         JavaLspServer server = new JavaLspServer();
 
-        Launcher<CustomLanguageClient> launcher = LSPLauncher.createServerLauncher(
+        Launcher<CustomLanguageClient_> launcher = LSPLauncher.createServerLauncher(
                 server,
                 System.in,
                 System.out
@@ -147,7 +149,7 @@ public class JavaLspServer implements LanguageServer, LanguageClientAware {
 
     @Override
     public void connect(LanguageClient client) {
-        this.client = (CustomLanguageClient) client;
+        this.client = (CustomLanguageClient_) client;
     }
 
     @Override
@@ -161,11 +163,11 @@ public class JavaLspServer implements LanguageServer, LanguageClientAware {
     }
 }
 
-class JavaWorkspaceService implements WorkspaceService {
+class JavaWorkspaceService_ extends JavaWorkspaceService {
 
     private final JavaLspServer server;
 
-    public JavaWorkspaceService(JavaLspServer server) {
+    public JavaWorkspaceService_(JavaLspServer server) {
         this.server = server;
     }
 
@@ -274,7 +276,7 @@ class JavaWorkspaceService implements WorkspaceService {
             }
 
             // Notify client about config change
-            CustomLanguageClient client = (CustomLanguageClient) server;
+            CustomLanguageClient_ client = (CustomLanguageClient_) server;
             client.configurationChanged("Configuration updated: " + config);
         }
 
@@ -290,12 +292,12 @@ class JavaWorkspaceService implements WorkspaceService {
     }
 }
 
-class JavaTextDocumentService implements TextDocumentService {
+class JavaTextDocumentService_ extends JavaTextDocumentService {
 
-    private final JavaLspServer server;
+    private final JavaLspServer_ server;
     private final Map<String, TextDocumentItem> documents = new HashMap<>();
 
-    public JavaTextDocumentService(JavaLspServer server) {
+    public JavaTextDocumentService_(JavaLspServer server) {
         this.server = server;
     }
 

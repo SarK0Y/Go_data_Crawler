@@ -6,7 +6,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 import com.google.gson.*;
-import _lsp.CustomLanguageClient.CustomLanguageClient;
+import _lsp.CustomLanguageClient;
 import _lsp.JavaTextDocumentService;
 import _lsp.JavaWorkspaceService;
 import java.util.*;
@@ -294,7 +294,7 @@ class JavaWorkspaceService_ extends JavaWorkspaceService {
 
 class JavaTextDocumentService_ extends JavaTextDocumentService {
 
-    private final JavaLspServer_ server;
+    private final JavaLspServer server;
     private final Map<String, TextDocumentItem> documents = new HashMap<>();
 
     public JavaTextDocumentService_(JavaLspServer server) {

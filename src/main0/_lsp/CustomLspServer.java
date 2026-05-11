@@ -245,23 +245,28 @@ public class CustomLspServer implements CustomLanguageServer, LanguageClientAwar
         this.srv = new _Server ();
         this.textDocumentService = new _TxtDocSrv(srv);
         String [] input = {""};
-        this.main (input);
+        try {
+            this.main (input);
+        } catch (Exception e){
+           // System.out.println (e.printStackTrace ());
+        }
     }
 
     public void main(String[] args) throws Exception {
         
-       // JavaLspServer server = new JavaLspServer();
+       JavaLspServer server = new JavaLspServer();
 
         // Create launcher with custom interfaces
-        Launcher<CustomLanguageClient> launcher = LSPLauncher.createServerLauncher(
-                srv,
+        @SuppressWarnings("unchecked")
+        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
+                this,
                 System.in,
                 System.out
             //    Executors.newCachedThreadPool(),
               //  (consumer) -> {}
         );
 
-        server.connect(launcher.getRemoteProxy());
+        server.connect((CustomLanguageClient)launcher.getRemoteProxy());
         launcher.startListening();
     }
 

@@ -43,9 +43,9 @@ public class _Server implements LanguageServer, LanguageClientAware {
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
             server,
             System.in,
-            System.out,
-            Executors.newCachedThreadPool(),
-            (consumer) -> {}
+            System.out
+            //Executors.newCachedThreadPool(),
+          //  (consumer) -> {}
         );
         server.connect(launcher.getRemoteProxy());
         launcher.startListening();
@@ -62,7 +62,7 @@ public class _Server implements LanguageServer, LanguageClientAware {
                 
                 _Server server = new _Server();
                 Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
-                    server, in, out, Executors.newCachedThreadPool(), (consumer) -> {}
+                    server, in, out //Executors.newCachedThreadPool(), (consumer) -> {}
                 );
                 server.connect(launcher.getRemoteProxy());
                 launcher.startListening();

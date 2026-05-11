@@ -7,10 +7,10 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-
+import _lsp._Server;
 public class _TxtDocSrv implements TextDocumentService {
     
-    private final JavaLspServer server;
+    private final _Server server;
     private final Map<String, String> documents = new ConcurrentHashMap<>();
     
     // Simple keyword completions for demo
@@ -25,7 +25,7 @@ public class _TxtDocSrv implements TextDocumentService {
         "try", "void", "volatile", "while"
     );
     
-    public _TxtDocSrv(JavaLspServer server) {
+    public _TxtDocSrv(_Server server) {
         this.server = server;
     }
 

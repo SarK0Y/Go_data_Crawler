@@ -10,7 +10,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-
+import java.util.List;
+import _lsp._Server;
 // Custom interface for extension methods (beyond standard LSP)
 interface CustomLanguageServer extends LanguageServer {
     @JsonRequest("custom/getData")
@@ -238,22 +239,27 @@ public class CustomLspServer implements CustomLanguageServer, LanguageClientAwar
 
     private CustomLanguageClient client;
     private final TextDocumentService textDocumentService;
-
+    private _Server srv;
     public CustomLspServer() {
-        this.textDocumentService = new _TxtDocSrv();
+       // this.client = new CustomLanguageClient ();
+        this.srv = new _Server ();
+        this.textDocumentService = new _TxtDocSrv(srv);
+        String [] input = {""};
+        this.main (input);
     }
 
-    public static void main(String[] args) throws Exception {
-        JavaLspServer server = new JavaLspServer();
+    public void main(String[] args) throws Exception {
+        
+       // JavaLspServer server = new JavaLspServer();
 
         // Create launcher with custom interfaces
         Launcher<CustomLanguageClient> launcher = LSPLauncher.createServerLauncher(
-                server,
+                srv,
                 System.in,
-                System.out,
-                Executors.newCachedThreadPool(),
-                (consumer) -> {
-                });
+                System.out
+            //    Executors.newCachedThreadPool(),
+              //  (consumer) -> {}
+        );
 
         server.connect(launcher.getRemoteProxy());
         launcher.startListening();

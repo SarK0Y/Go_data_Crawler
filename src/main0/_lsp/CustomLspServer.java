@@ -1,10 +1,47 @@
 package _lsp;
-import org.eclipse.lsp4j.*;
-import org.eclipse.lsp4j.jsonrpc.Launcher;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.CodeLensParams;
+import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.DidCloseTextDocumentParams;
+import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.DidSaveTextDocumentParams;
+import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
+import org.eclipse.lsp4j.DocumentRangeFormattingParams;
+import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.ReferenceParams;
+import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SignatureHelp;
+import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.services.LanguageServer;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageClientAware;
+import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.DidChangeConfigurationParams;
+import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
+import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.launch.LSPLauncher;
-import org.eclipse.lsp4j.services.*;
+import org.eclipse.lsp4j.jsonrpc.services.JsonObject;
+import org.eclipse.lsp4j.services.WorkspaceService;
+//import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.services.TextDocumentService;
 import io.vavr.control.Either;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -375,7 +412,12 @@ class JavaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
-        return CompletableFuture.completedFuture(null);
+        
+         List<CompletionItem> items = new ArrayList<>();    
+         // populate items as needed
+         //items.push 
+          Either<List<CompletionItem>, CompletionList> result = Either.left(items);
+         return CompletableFuture.completedFuture(result);
     }
 }
 

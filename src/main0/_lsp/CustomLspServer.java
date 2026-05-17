@@ -38,10 +38,11 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
-import org.eclipse.lsp4j.jsonrpc.services.JsonObject;
 import org.eclipse.lsp4j.services.WorkspaceService;
 //import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import com.google.gson.JsonObject;
+import com.google.gson.Gson;
 import io.vavr.control.Either;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,7 +52,7 @@ import java.util.List;
 import _lsp._Server;
 // Custom interface for extension methods (beyond standard LSP)
 interface CustomLanguageServer extends LanguageServer {
-    @JsonRequest("custom/getData")
+   // @JsonRequest("custom/getData")
     CompletableFuture<CustomResponse> getData(CustomRequest request);
 
     @JsonNotification("custom/notify")
@@ -63,7 +64,7 @@ interface CustomLanguageClient extends LanguageClient {
     @JsonNotification("custom/clientNotification")
     void sendClientNotification(CustomClientNotification notification);
 
-    @JsonRequest("custom/askClient")
+   // @JsonRequest("custom/askClient")
     CompletableFuture<ClientResponse> askClient(ClientQuestion question);
 }
 

@@ -74,7 +74,7 @@ public class JavaLspServer implements LanguageServer, LanguageClientAware {
     public static void main(String[] args) throws Exception {
         JavaLspServer server = new JavaLspServer();
 
-        Launcher<CustomLanguageClient_> launcher = LSPLauncher.createServerLauncher(
+        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
                 server,
                 System.in,
                 System.out
@@ -83,7 +83,7 @@ public class JavaLspServer implements LanguageServer, LanguageClientAware {
             //    (consumer) -> {
               //  });*/
 
-        server.connect(launcher.getRemoteProxy());
+        server.connect((CustomLanguageClient_)launcher.getRemoteProxy());
         launcher.startListening();
     }
 

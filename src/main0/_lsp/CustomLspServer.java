@@ -39,16 +39,22 @@ import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.services.WorkspaceService;
-//import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import com.google.gson.JsonObject;
 import com.google.gson.Gson;
-import io.vavr.control.Either;
+//import io.vavr.control.Either;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.launch.LSPLauncher;
 import java.util.List;
+import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.CompletionOptions;
+//import org.eclipse.lsp4j.HoverCapability;
+import org.eclipse.lsp4j.TextDocumentSyncKind;
 import _lsp._Server;
 // Custom interface for extension methods (beyond standard LSP)
 interface CustomLanguageServer extends LanguageServer {
@@ -417,7 +423,8 @@ class JavaTextDocumentService implements TextDocumentService {
          List<CompletionItem> items = new ArrayList<>();    
          // populate items as needed
          //items.push 
-          Either<List<CompletionItem>, CompletionList> result = Either.left(items);
+          Either<List<CompletionItem>, CompletionList> result = Either.forLeft(items);
+          //result = Either.getLeft();
          return CompletableFuture.completedFuture(result);
     }
 }

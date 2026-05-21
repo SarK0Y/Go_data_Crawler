@@ -5,6 +5,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import com.google.gson.*;
 import _lsp.CustomLanguageClient;
 import _lsp.JavaTextDocumentService;
@@ -12,7 +13,7 @@ import _lsp.JavaWorkspaceService;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import io.vavr.control.Either;
+//import io.vavr.control.Either;
 // Configuration holder
 class ServerConfig {
     boolean enableDiagnostics = true;

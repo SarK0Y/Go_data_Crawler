@@ -1,11 +1,8 @@
 package cmdLine;
-import cmdLine.TypeOfTask;
-import cmdLine.ModeOfTask;
 import io.vavr.control.Either;
 public interface cmd_line <T extends cmd_line <T>>{
-    //private ModeOfTask taskMode = ModeOfTask.none;
-    //private TypeOfTask taskType = TypeOfTask.singleKey;
-    static <T> Either <T, Integer> create (ModeOfTask setMode, TypeOfTask setType) {
+    
+    static <T> Either <T, Integer> create (ModeOfTask setMode, TypeOfTask setType, String [] args) {
         return Either.right (0);
     };
 

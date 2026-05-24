@@ -13,4 +13,21 @@ public class dbg <T> {
         }
         return ret;
     }
+    public List <String> names_of_marked_methods (List <Method> marked_ones) {
+        List <String> ret = new ArrayList <> ();
+        for (Method name: marked_ones) {
+            ret.add(name.getName());
+        }
+        return ret;
+    }
 } 
+/*
+public List<String> namesOfMarkedMethods(List<Method> marks) {
+    List<String> ret = new ArrayList<>();
+    for (Method m : marks) {
+        ret.add(m.getDeclaringClass().getCanonicalName());
+    }
+    return ret;
+}
+
+ */

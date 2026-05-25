@@ -112,5 +112,48 @@ if (clsOpt.isPresent()) {
     Updating file
 
     After printing the modified CU, write back to file (overwrite) to persist changes.
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
+import java.nio.file.Path;
+import java.util.Optional;
 
+Path path = Path.of("src/main/java/com/example/MyClass.java");
+CompilationUnit cu = JavaParser.parse(path);
+LexicalPreservingPrinter.setup(cu);
+
+// find method by name (or add additional filters for params/annotations)
+Optional<MethodDeclaration> mOpt = cu.findFirst(MethodDeclaration.class,
+    m -> m.getNameAsString().equals("myMethod"));
+
+if (mOpt.isPresent()) {
+    MethodDeclaration m = mOpt.get();
+
+    // 1) Replace entire body with a parsed block
+    m.setBody(JavaParser.parseBlock("{ System.out.println(\"new body\"); }"));
+
+    // 2) Or modify statements inside existing body:
+    // m.getBody().ifPresent(body -> {
+    //     body.getStatements().clear();
+    //     body.addStatement("System.out.println(\"replaced\");");
+    // });
+
+    // 3) Or change signature (return type, params, modifiers)
+    // m.setType("int");
+    // m.setName("newName");
+    // m.addParameter("String", "arg");
+
+    // Print whole CU (preserves original formatting/comments)
+    String updated = LexicalPreservingPrinter.print(cu);
+    System.out.println(updated);
+    // write back to file if desired
+}
+Notes:
+
+    Call LexicalPreservingPrinter.setup(cu) immediately after parsing.
+    Use JavaParser.parseBlock / parseStatement to create proper nodes so token ranges are tracked.
+    For adding statements to existing body prefer body.addStatement(...) rather than manipulating strings.
+    To replace a method entirely, you can use m.replace(newMethodDeclaration).
+    After changes, write LexicalPreservingPrinter.print(cu) back to the source file to persist
  */

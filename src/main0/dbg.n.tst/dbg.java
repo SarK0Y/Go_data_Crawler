@@ -32,5 +32,85 @@ public List<String> namesOfMarkedMethods(List<Method> marks) {
     }
     return ret;
 }
+////////////////////////
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+
+Path path = Path.of("src/main/java/com/example/MyClass.java");
+CompilationUnit cu = JavaParser.parse(path);
+
+// get the first class or a specific one by name
+Optional<ClassOrInterfaceDeclaration> clsOpt = cu.findFirst(ClassOrInterfaceDeclaration.class,
+    c -> c.getNameAsString().equals("MyClass"));
+
+if (clsOpt.isPresent()) {
+    ClassOrInterfaceDeclaration cls = clsOpt.get();
+
+    // 1) Get members (methods, fields, constructors, initializers)
+    List<BodyDeclaration<?>> members = cls.getMembers();
+
+    // 2) Get source text of the class body (between braces)
+    String bodyText = cls.getMembers().stream()
+        .map(Object::toString)
+        .reduce((a,b) -> a + System.lineSeparator() + b)
+        .orElse("");
+
+    // 3) Or get the whole class source (including header)
+    String classSource = cls.toString();
+}
+Notes:
+
+    Use cu.getTypes() or cu.getPrimaryType() if you prefer indexed access.
+    For nested or multiple classes, filter by name or iterate cu.findAll(ClassOrInterfaceDeclaration.class).
+    To preserve formatting/comments, consider using JavaParser's LexicalPreservingPrinter:
+        Wrap: LexicalPreservingPrinter.setup(cu)
+        Then use LexicalPreservingPrinter.print(cls) to get preserved source.
+
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
+import java.nio.file.Path;
+import java.util.Optional;
+
+Path path = Path.of("src/main/java/com/example/MyClass.java");
+CompilationUnit cu = JavaParser.parse(path);
+
+// enable lexical preserving
+LexicalPreservingPrinter.setup(cu);
+
+// locate class
+Optional<ClassOrInterfaceDeclaration> clsOpt = cu.findFirst(ClassOrInterfaceDeclaration.class,
+    c -> c.getNameAsString().equals("MyClass"));
+
+if (clsOpt.isPresent()) {
+    ClassOrInterfaceDeclaration cls = clsOpt.get();
+
+    // Example modification: add a method
+    cls.addMethod("hello").setType("void").setBody(
+        JavaParser.parseBlock("{ System.out.println(\"hi\"); }"));
+
+    // print with original formatting/comments preserved
+    String result = LexicalPreservingPrinter.print(cu);
+    System.out.println(result);
+}
+
+    Tips and pitfalls
+
+    Always call LexicalPreservingPrinter.setup(cu) immediately after parsing; otherwise preservation won't work reliably.
+    When creating new nodes, prefer using JavaParser.parseX helpers (parseBlock, parseStatement) or build nodes via API; manually-crafted toString() nodes won't have original token ranges.
+    For single-node printing (e.g., print only the class), use: String classText = LexicalPreservingPrinter.print(cls); (works after setup)
+    Replacing/removing nodes: use node.replace(...) or remove(); LexicalPreservingPrinter keeps surrounding whitespace/comments.
+    Beware of using JavaParser.parse(...) again on subtrees — that creates new CompilationUnits not hooked to the lexical printer.
+    Some complex formatting (aligned comments, column-based alignment) may not be perfectly preserved; test on real files.
+
+    Updating file
+
+    After printing the modified CU, write back to file (overwrite) to persist changes.
 
  */

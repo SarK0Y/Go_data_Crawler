@@ -108,3 +108,46 @@ You should see the processor's notes in the Maven build output (compiler message
 
 If you want, I can provide a complete pom.xml and the full LocalVarProcessor source file in one response. Which would you prefer?
  */
+
+/*
+Add your processor artifact(s) inside <annotationProcessorPaths> as <path> entries with groupId, artifactId, and version. Example: your project has a separate module/artifact com.example:localvar-processor:1.0 and you want to run it during compilation.
+
+Complete pom snippet:
+
+```xml
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.11.0</version>
+      <configuration>
+        <source>17</source>
+        <target>17</target>
+        <annotationProcessorPaths>
+          <path>
+            <groupId>com.example</groupId>
+            <artifactId>localvar-processor</artifactId>
+            <version>1.0</version>
+          </path>
+          <!-- Common useful processors (optional) -->
+          <path>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+          </path>
+        </annotationProcessorPaths>
+        <compilerArgs>
+          <arg>-processor</arg>
+          <arg>com.example.processor.LocalVarProcessor</arg>
+        </compilerArgs>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+```
+
+If the processor is built in the same module (no separate artifact), you can omit annotationProcessorPaths; Maven will still run processors found on
+ the compile classpath. If you split into two modules, ensure the processor module is installed to your local repo (or available in a repo) 
+ and use its coordinates above.
+ */

@@ -3,8 +3,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>main0.main0</groupId>
-  <artifactId>main0.main0</artifactId>
+  <groupId>Main.main0</groupId>
+  <artifactId>Main.main0</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
@@ -44,7 +44,6 @@
     </dependency>
   </dependencies>
 <build>
-    <sourceDirectory>src/main0</sourceDirectory>
   <plugins>
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
@@ -55,14 +54,11 @@
         <target>11</target>
       </configuration>
     </plugin>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-war-plugin</artifactId>
-      <version>3.3.2</version>
-      <configuration>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
-      </configuration>
-    </plugin>
+	<plugin>  
+	  <groupId>org.apache.maven.plugins</groupId>
+	   <artifactId>maven-jar-plugin</artifactId>
+           <version>3.4.0</version>
+        </plugin>
   </plugins>
 </build>
 </project>

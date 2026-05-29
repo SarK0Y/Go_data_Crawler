@@ -17,7 +17,7 @@ import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.tree.Tree;
-
+import static basix_funx._basix_funx.prnt;
 @SupportedAnnotationTypes("*")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class LocalVarProcessor extends AbstractProcessor {
@@ -44,6 +44,7 @@ public class LocalVarProcessor extends AbstractProcessor {
                         for (AnnotationMirror am : elem.getAnnotationMirrors()) {
                             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
                                     "Found local annotation: " + am, elem);
+                                    prnt ("tst am: " + am.STRING);
                         }
                     }
                     return super.visitVariable(node, p);

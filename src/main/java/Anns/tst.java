@@ -6,4 +6,6 @@ import java.lang.annotation.Target;
 @Target ({ElementType.FIELD, ElementType.LOCAL_VARIABLE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface tst {
+    int INT () default 0;
+    String STRING () default "none";
 }

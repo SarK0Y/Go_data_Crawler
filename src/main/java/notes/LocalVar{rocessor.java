@@ -150,6 +150,36 @@ Complete pom snippet:
 If the processor is built in the same module (no separate artifact), you can omit annotationProcessorPaths; Maven will still run processors found on
  the compile classpath. If you split into two modules, ensure the processor module is installed to your local repo (or available in a repo) 
  and use its coordinates above.
+
+ Use AnnotationMirror and its API to read element names and values. Example inside your processor:
+
+
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Name;
+import java.util.Map;
+
+// am is an AnnotationMirror
+Map<? extends ExecutableElement, ? extends AnnotationValue> values = processingEnv.getElementUtils()
+    .getElementValuesWithDefaults(am);
+
+for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+    ExecutableElement element = entry.getKey();        // annotation element (method)
+    Name elementName = element.getSimpleName();        // e.g. "value" or "number"
+    AnnotationValue value = entry.getValue();          // the value
+    Object v = value.getValue();                       // primitive, String, TypeMirror, List<AnnotationValue>, VariableElement (enum), etc.
+
+    processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
+        elementName + " = " + v, \/*optional null);
+}
+
+
+Notes:
+- getElementValuesWithDefaults(am) returns explicit values plus defaults.
+- For array-valued elements the AnnotationValue.getValue() is a List<? extends AnnotationValue>.
+- For enum constants it returns a VariableElement; for class literals it returns a TypeMirror.
+- To handle nested annotation values, inspect AnnotationValue and cast/check types, or use visitor via value.accept(...) for robust processing.
  */
 
 /*

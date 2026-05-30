@@ -22,7 +22,7 @@ public class main_jbuild implements ifc_jbuild {
         this.changed = false;
     }
     public static Optional <String> add_code_to_src (String src, String YourCode) {
-        @tst(STRING="tst")
+        @tst(STRING="__tst__")
         var x = 4;
         return Optional.empty();
     }

@@ -45,7 +45,7 @@ public class LocalVarProcessor extends AbstractProcessor {
                         for (AnnotationMirror am : elem.getAnnotationMirrors()) {
                             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
                                     "Found local annotation: " + am, elem);
-                                    prnt ("tst am: " + getAnnValue ( processingEnv, am, "STRING" ) );
+                            prnt ("tst am: " + getAnnValue ( processingEnv, am, "tst", "STRING" ) );
                         }
                     }
                     return super.visitVariable(node, p);

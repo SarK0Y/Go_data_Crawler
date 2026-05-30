@@ -30,5 +30,15 @@ public class marker {
             }
         } return Optional.empty ();
     }
+    static Optional <Object> getAnnValue (
+        ProcessingEnvironment processingEnv,
+        AnnotationMirror am,
+        String amName,
+        String keyName
+        ) {
+            if (amName.toString().equals (amName)) {
+                return getAnnValue (processingEnv, am, keyName);
+            } return Optional.empty ();
+    }
 
 }

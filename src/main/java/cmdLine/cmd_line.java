@@ -1,10 +1,18 @@
 package cmdLine;
 import io.vavr.control.Either;
+import java.util.List;
+import java.util.ArrayList;
+import basix_funx.tuple;
 public interface cmd_line <T extends cmd_line <T>>{
     
     static <T> Either <T, Integer> create (ModeOfTask setMode, TypeOfTask setType, String [] args) {
         return Either.right (0);
     };
+    public void exec ();
+    public void do_last ();
+    public void do_all ();
+    public void do_1st ();
+    public List <tuple <String, String> > AllOneKeyOneVal (String... key);
 
 }
 /*

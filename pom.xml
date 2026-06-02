@@ -22,6 +22,23 @@
     </repository>
  </repositories>
   <dependencies>
+     <!-- Source: https://mvnrepository.com/artifact/org.eclipse.lsp4j/org.eclipse.lsp4j -->
+<dependency>
+    <groupId>org.eclipse.lsp4j</groupId>
+    <artifactId>org.eclipse.lsp4j</artifactId>
+    <version>1.0.0</version>
+    <scope>runtime</scope>
+</dependency>
+  <dependency>   
+      <groupId>org.eclipse.lsp4j</groupId>
+      <artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
+      <version>1.0.0</version>
+ </dependency>
+ <dependency>
+     <groupId>org.eclipse.lsp4j</groupId>
+     <artifactId>org.eclipse.lsp4j.launch</artifactId>
+     <version>1.0.0</version>  
+</dependency>
     <dependency>
        <groupId>com.github.javaparser</groupId>
        <artifactId>javaparser-core</artifactId>
@@ -36,11 +53,6 @@
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
         <version>2.14.0</version>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.lsp4j</groupId>
-        <artifactId>org.eclipse.lsp4j</artifactId>
-        <version>0.21.2</version> <!-- Check Maven Central for the latest version -->
     </dependency>
   </dependencies>
 <build>

@@ -20,3 +20,12 @@
       </executions>
     </plugin>
  */
+/*
+Maven Shade advanced: Custom resource transformers, relocation to avoid dependency conflicts.
+
+Gradle Shadow tricks: Merging service files, handling multiple entry points.
+
+JAR signing basics: Understanding why those META‑INF signatures exist in the first place.
+
+Java packaging best practices: Alternatives like modular JARs or Docker images for deployment.
+ */

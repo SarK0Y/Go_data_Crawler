@@ -299,19 +299,22 @@ public class CustomLspServer implements CustomLanguageServer, LanguageClientAwar
     public void main(String[] args) throws Exception {
         
        JavaLspServer server = new JavaLspServer();
+        try {
+            // Create launcher with custom interfaces
+            @SuppressWarnings("unchecked")
+            Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
+                    this,
+                    System.in,
+                    System.out
+                //    Executors.newCachedThreadPool(),
+                //  (consumer) -> {}
+            );
 
-        // Create launcher with custom interfaces
-        @SuppressWarnings("unchecked")
-        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
-                this,
-                System.in,
-                System.out
-            //    Executors.newCachedThreadPool(),
-              //  (consumer) -> {}
-        );
-
-        server.connect((CustomLanguageClient)launcher.getRemoteProxy());
-        launcher.startListening();
+            server.connect((CustomLanguageClient)launcher.getRemoteProxy());
+            launcher.startListening();
+        } catch (Exception e) {
+            
+        }
     }
 
     // ============ Custom Methods (Called by Client) ============

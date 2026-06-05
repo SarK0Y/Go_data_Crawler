@@ -56,6 +56,7 @@ import org.eclipse.lsp4j.CompletionOptions;
 //import org.eclipse.lsp4j.HoverCapability;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import _lsp._Server;
+import basix_funx.loggy;
 // Custom interface for extension methods (beyond standard LSP)
 interface CustomLanguageServer extends LanguageServer {
    // @JsonRequest("custom/getData")
@@ -293,6 +294,7 @@ public class CustomLspServer implements CustomLanguageServer, LanguageClientAwar
             this.main (input);
         } catch (Exception e){
            // System.out.println (e.printStackTrace ());
+           loggy.w.info (e.getMessage());
         }
     }
 
@@ -313,7 +315,7 @@ public class CustomLspServer implements CustomLanguageServer, LanguageClientAwar
             server.connect((CustomLanguageClient)launcher.getRemoteProxy());
             launcher.startListening();
         } catch (Exception e) {
-            
+
         }
     }
 

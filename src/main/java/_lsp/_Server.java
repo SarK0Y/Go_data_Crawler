@@ -3,7 +3,6 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -11,9 +10,9 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-
 import _lsp._TxtDocSrv;
 import _lsp._WorkspaceService;
+import basix_funx.loggy;
 public class _Server implements LanguageServer, LanguageClientAware {
     
     private LanguageClient client;
@@ -21,6 +20,7 @@ public class _Server implements LanguageServer, LanguageClientAware {
     private final WorkspaceService workspaceService;
     
     public _Server() {
+        loggy.w.info("start _Server");
         this.textDocumentService = new _TxtDocSrv(this);
         this.workspaceService = new _WorkspaceService();
     }
@@ -34,12 +34,14 @@ public class _Server implements LanguageServer, LanguageClientAware {
             // startSocket(5007);
             
         } catch (Exception e) {
-            e.printStackTrace();
+          //  e.printStackTrace();
+            loggy.w.debug(e.getMessage());
         }
     }
     
     private static void startStdio() throws Exception {
         _Server server = new _Server();
+        loggy.w.info ("_Server is created");
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
             server,
             System.in,
@@ -47,6 +49,7 @@ public class _Server implements LanguageServer, LanguageClientAware {
             //Executors.newCachedThreadPool(),
           //  (consumer) -> {}
         );
+        loggy.w.info ("launcher runs");
         server.connect(launcher.getRemoteProxy());
         launcher.startListening();
     }

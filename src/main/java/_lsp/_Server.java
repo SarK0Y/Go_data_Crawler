@@ -21,8 +21,11 @@ public class _Server implements LanguageServer, LanguageClientAware {
     
     public _Server() {
         loggy.w.info("start _Server");
+       // loggy.w.debug("start _Server");
         this.textDocumentService = new _TxtDocSrv(this);
+        loggy.w.info("this.textDocumentService = new _TxtDocSrv(this);");
         this.workspaceService = new _WorkspaceService();
+        loggy.w.info("this.workspaceService = new _WorkspaceService();");
     }
 
     public static void main(String[] args) {
@@ -35,11 +38,11 @@ public class _Server implements LanguageServer, LanguageClientAware {
             
         } catch (Exception e) {
           //  e.printStackTrace();
-            loggy.w.debug(e.getMessage());
+            loggy.w.info(e.getMessage());
         }
     }
     
-    private static void startStdio() throws Exception {
+    public static void startStdio() throws Exception {
         _Server server = new _Server();
         loggy.w.info ("_Server is created");
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
@@ -54,7 +57,7 @@ public class _Server implements LanguageServer, LanguageClientAware {
         launcher.startListening();
     }
     
-    private static void startSocket(int port) throws Exception {
+    public static void startSocket(int port) throws Exception {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.err.println("LSP Server listening on port " + port);
             

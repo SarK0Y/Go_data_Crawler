@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>Main.main0</groupId>
-  <artifactId>Main.main0</artifactId>
+ <artifactId>Main.main0</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
@@ -74,6 +74,7 @@
             <goal>shade</goal>
           </goals>
           <configuration>
+            <outputFile>${project.build.directory}/go_data_crawler.jar</outputFile>
             <filters>
                 <filter>
                 <artifact>*:*</artifact>

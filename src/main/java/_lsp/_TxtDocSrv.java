@@ -118,6 +118,7 @@ public class _TxtDocSrv implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> 
             definition(DefinitionParams params) {
+        server.getClient().logMessage(new MessageParams(MessageType.Info, "done"));
         // Simplified - just return empty for demo
         return CompletableFuture.completedFuture(Either.forLeft(Collections.emptyList()));
     }

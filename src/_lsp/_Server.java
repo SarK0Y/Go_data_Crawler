@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 
 import _lsp._TxtDocSrv;
 import _lsp._WorkspaceService;
+import basix_funx.loggy;
 public class _Server implements LanguageServer, LanguageClientAware {
     
     private LanguageClient client;
@@ -44,11 +45,22 @@ public class _Server implements LanguageServer, LanguageClientAware {
             server,
             System.in,
             System.out,
-            Executors.newCachedThreadPool(),
-            (consumer) -> {}
+            Executors.newCachedThreadPool(r -> {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                return t;
+            }),
+            (consumer) -> consumer
         );
         server.connect(launcher.getRemoteProxy());
-        launcher.startListening();
+        try {
+            launcher.startListening().get();
+            loggy.w.info("LSP client disconnected, shutting down");
+        } catch (Exception e) {
+            loggy.w.error("LSP listener stopped: " + e.getMessage(), e);
+        } finally {
+            System.exit(0);
+        }
     }
     
     private static void startSocket(int port) throws Exception {
@@ -131,5 +143,9 @@ public class _Server implements LanguageServer, LanguageClientAware {
     
     public LanguageClient getClient() {
         return client;
+    }
+    
+    public void printActiveDocument(DefinitionParams params) {
+        loggy.w.info("F12 active document: " + params.getTextDocument().getUri());
     }
 }

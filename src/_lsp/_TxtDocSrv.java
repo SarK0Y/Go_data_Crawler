@@ -4,17 +4,22 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import basix_funx.loggy;
 
 public class _TxtDocSrv implements TextDocumentService {
     
     private final JavaLspServer server;
     private final Map<String, String> documents = new ConcurrentHashMap<>();
     
-    // Simple keyword completions for demo
-    private static final List<String> JAVA_KEYWORDS = Arrays.asList(
+    private static final List<String> DEFAULT_KEYWORDS = Arrays.asList(
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
         "char", "class", "const", "continue", "default", "do", "double",
         "else", "enum", "extends", "final", "finally", "float", "for",
@@ -24,6 +29,22 @@ public class _TxtDocSrv implements TextDocumentService {
         "switch", "synchronized", "this", "throw", "throws", "transient",
         "try", "void", "volatile", "while"
     );
+    private static final List<String> JAVA_KEYWORDS = loadKeywords(DEFAULT_KEYWORDS);
+
+    private static List<String> loadKeywords(List<String> fallback) {
+        String file = System.getProperty("keywordsFile");
+        if (file == null || file.isEmpty()) {
+            return fallback;
+        }
+        try (Stream<String> lines = Files.lines(Paths.get(file))) {
+            return lines.map(String::trim)
+                    .filter(l -> !l.isEmpty() && !l.startsWith("#"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            loggy.w.error("cannot load keywords from " + file + ": " + e.getMessage(), e);
+            return fallback;
+        }
+    }
     
     public _TxtDocSrv(JavaLspServer server) {
         this.server = server;
@@ -118,6 +139,7 @@ public class _TxtDocSrv implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> 
             definition(DefinitionParams params) {
+        server.printActiveDocument(params);
         // Simplified - just return empty for demo
         return CompletableFuture.completedFuture(Either.forLeft(Collections.emptyList()));
     }

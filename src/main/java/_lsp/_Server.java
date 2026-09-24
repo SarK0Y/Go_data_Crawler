@@ -48,13 +48,24 @@ public class _Server implements LanguageServer, LanguageClientAware {
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
             server,
             System.in,
-            System.out
-            //Executors.newCachedThreadPool(),
-          //  (consumer) -> {}
+            System.out,
+            Executors.newCachedThreadPool(r -> {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                return t;
+            }),
+            (consumer) -> consumer
         );
         loggy.w.info ("launcher runs");
         server.connect(launcher.getRemoteProxy());
-        launcher.startListening();
+        try {
+            launcher.startListening().get();
+            loggy.w.info("LSP client disconnected, shutting down");
+        } catch (Exception e) {
+            loggy.w.error("LSP listener stopped: " + e.getMessage(), e);
+        } finally {
+            System.exit(0);
+        }
     }
     
     public static void startSocket(int port) throws Exception {
@@ -137,5 +148,9 @@ public class _Server implements LanguageServer, LanguageClientAware {
     
     public LanguageClient getClient() {
         return client;
+    }
+    
+    public void printActiveDocument(DefinitionParams params) {
+        loggy.w.info("F12 active document: " + params.getTextDocument().getUri());
     }
 }

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import _lsp._DefSearch;
 import _lsp._TxtDocSrv;
 import _lsp._WorkspaceService;
 import basix_funx.loggy;
@@ -37,10 +39,44 @@ class SetLangParams {
     }
 }
 
+// DTO for the i_c_fn_head/definitions request
+class DefinitionsParams {
+    private String uri;
+    private String srcUri;
+    private String word;
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getSrcUri() {
+        return srcUri;
+    }
+
+    public void setSrcUri(String srcUri) {
+        this.srcUri = srcUri;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+}
+
 // Custom server interface (beyond standard LSP)
 interface IcfhLanguageServer extends LanguageServer {
     @JsonNotification("i_c_fn_head/setLanguage")
     void setLanguage(SetLangParams params);
+
+    @JsonRequest("i_c_fn_head/definitions")
+    CompletableFuture<List<Location>> definitions(DefinitionsParams params);
 }
 
 public class _Server implements IcfhLanguageServer, LanguageClientAware {
@@ -166,6 +202,11 @@ public class _Server implements IcfhLanguageServer, LanguageClientAware {
         if (textDocumentService instanceof _TxtDocSrv) {
             ((_TxtDocSrv) textDocumentService).setLanguage(params);
         }
+    }
+
+    @Override
+    public CompletableFuture<List<Location>> definitions(DefinitionsParams params) {
+        return CompletableFuture.supplyAsync(() -> _DefSearch.find(params));
     }
 
     @Override

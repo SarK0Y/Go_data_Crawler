@@ -10,10 +10,40 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import _lsp._TxtDocSrv;
 import _lsp._WorkspaceService;
 import basix_funx.loggy;
-public class _Server implements LanguageServer, LanguageClientAware {
+
+// DTO for the i_c_fn_head/setLanguage notification
+class SetLangParams {
+    private String lang;
+    private String file;
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+}
+
+// Custom server interface (beyond standard LSP)
+interface IcfhLanguageServer extends LanguageServer {
+    @JsonNotification("i_c_fn_head/setLanguage")
+    void setLanguage(SetLangParams params);
+}
+
+public class _Server implements IcfhLanguageServer, LanguageClientAware {
     
     private LanguageClient client;
     private final TextDocumentService textDocumentService;
@@ -129,6 +159,13 @@ public class _Server implements LanguageServer, LanguageClientAware {
     @Override
     public void exit() {
         System.exit(0);
+    }
+
+    @Override
+    public void setLanguage(SetLangParams params) {
+        if (textDocumentService instanceof _TxtDocSrv) {
+            ((_TxtDocSrv) textDocumentService).setLanguage(params);
+        }
     }
 
     @Override

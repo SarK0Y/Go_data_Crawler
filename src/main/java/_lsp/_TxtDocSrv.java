@@ -29,21 +29,41 @@ public class _TxtDocSrv implements TextDocumentService {
         "switch", "synchronized", "this", "throw", "throws", "transient",
         "try", "void", "volatile", "while"
     );
-    private static final List<String> JAVA_KEYWORDS = loadKeywords(DEFAULT_KEYWORDS);
+    private static final String DEFAULT_LANG = "java";
+    private static volatile String cur_lang = DEFAULT_LANG;
+    private static volatile List<String> keywords = loadKeywords(null, DEFAULT_KEYWORDS);
 
-    private static List<String> loadKeywords(List<String> fallback) {
-        String file = System.getProperty("keywordsFile");
-        if (file == null || file.isEmpty()) {
+    private static List<String> loadKeywords(String file, List<String> fallback) {
+        String keywords_file = file != null ? file : System.getProperty("keywordsFile");
+        if (keywords_file == null || keywords_file.isEmpty()) {
             return fallback;
         }
-        try (Stream<String> lines = Files.lines(Paths.get(file))) {
+        try (Stream<String> lines = Files.lines(Paths.get(keywords_file))) {
             return lines.map(String::trim)
                     .filter(l -> !l.isEmpty() && !l.startsWith("#"))
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            loggy.w.error("cannot load keywords from " + file + ": " + e.getMessage(), e);
+            loggy.w.error("cannot load keywords from " + keywords_file + ": " + e.getMessage(), e);
             return fallback;
         }
+    }
+
+    public void setLanguage(SetLangParams params) {
+        if (params == null) { return; }
+        String lang = params.getLang() == null ? DEFAULT_LANG : params.getLang().toLowerCase();
+        String file = params.getFile();
+        keywords = loadKeywords(file, DEFAULT_KEYWORDS);
+        cur_lang = lang;
+        loggy.w.info("lang set to " + lang + ", keywords: " + keywords.size());
+    }
+
+    private static void addSnippet(List<CompletionItem> items, String label, String detail, String insert) {
+        CompletionItem item = new CompletionItem(label);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setDetail(detail);
+        item.setInsertText(insert);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+        items.add(item);
     }
     
     public _TxtDocSrv(_Server server) {
@@ -86,30 +106,31 @@ public class _TxtDocSrv implements TextDocumentService {
             CompletionParams params) {
         
         List<CompletionItem> items = new ArrayList<>();
-        
+        String lang = cur_lang;
+
         // Add keyword completions
-        for (String keyword : JAVA_KEYWORDS) {
+        for (String keyword : keywords) {
             CompletionItem item = new CompletionItem(keyword);
             item.setKind(CompletionItemKind.Keyword);
-            item.setDetail("Java keyword");
+            item.setDetail(lang + " keyword");
             items.add(item);
         }
-        
+
         // Add some snippets
-        CompletionItem sysoutItem = new CompletionItem("sysout");
-        sysoutItem.setKind(CompletionItemKind.Snippet);
-        sysoutItem.setDetail("Print to standard output");
-        sysoutItem.setInsertText("System.out.println(${1});");
-        sysoutItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        items.add(sysoutItem);
-        
-        CompletionItem mainItem = new CompletionItem("main");
-        mainItem.setKind(CompletionItemKind.Snippet);
-        mainItem.setDetail("Main method");
-        mainItem.setInsertText("public static void main(String[] args) {\n    ${1}\n}");
-        mainItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        items.add(mainItem);
-        
+        if (lang.equals("java")) {
+            addSnippet(items, "sysout", "Print to standard output", "System.out.println(${1});");
+            addSnippet(items, "main", "Main method", "public static void main(String[] args) {\n    ${1}\n}");
+        } else if (lang.equals("c") || lang.equals("cpp")) {
+            addSnippet(items, "printf", "Print to standard output", "printf(${1});");
+            addSnippet(items, "main", "Main function", "int main(int argc, char** argv) {\n    ${1}\n    return 0;\n}");
+        } else if (lang.equals("rust")) {
+            addSnippet(items, "println", "Print to standard output", "println!(\"${1}\");");
+            addSnippet(items, "main", "Main function", "fn main() {\n    ${1}\n}");
+        } else if (lang.equals("d")) {
+            addSnippet(items, "writeln", "Print to standard output", "writeln(\"${1}\");");
+            addSnippet(items, "main", "Main function", "void main() {\n    ${1}\n}");
+        }
+
         return CompletableFuture.completedFuture(Either.forLeft(items));
     }
 
@@ -126,10 +147,10 @@ public class _TxtDocSrv implements TextDocumentService {
         // Simple word detection at position (very basic)
         String word = getWordAtPosition(content, pos);
         
-        if (word != null && JAVA_KEYWORDS.contains(word)) {
+        if (word != null && keywords.contains(word)) {
             MarkupContent markup = new MarkupContent();
             markup.setKind(MarkupKind.MARKDOWN);
-            markup.setValue("**Java keyword**: `" + word + "`");
+            markup.setValue("**" + cur_lang + " keyword**: `" + word + "`");
             return CompletableFuture.completedFuture(new Hover(markup));
         }
         

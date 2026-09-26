@@ -1,2 +1,8 @@
-//jHome: /usr/lib/jvm/java-17-openjdk-amd64 //
-//Jar: /home/evg/Java/go_data_crawler/github/target/go_data_crawler.jar //
+//jHome: /usr/lib/jvm/java-17-openjdk-amd64::://
+//Jar: /home/evg/Java/go_data_crawler/github/target/go_data_crawler.jar::://
+//keywordsFile: java=/home/evg/Java/go_data_crawler/kw.dic c=/home/evg/Java/go_data_crawler/kw_c.dic cpp=/home/evg/Java/go_data_crawler/kw_cpp.dic d=/home/evg/Java/go_data_crawler/kw_d.dic rust=/home/evg/Java/go_data_crawler/kw_rust.dic::://
+//run Java//
+//run C//
+//run CPP//
+//run D//
+//run Rust//

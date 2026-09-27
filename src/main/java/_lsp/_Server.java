@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import _lsp._DefSearch;
+import _lsp._DocSyms;
 import _lsp._TxtDocSrv;
 import _lsp._WorkspaceService;
 import basix_funx.loggy;
@@ -70,6 +71,37 @@ class DefinitionsParams {
     }
 }
 
+// DTO for the i_c_fn_head/documentSymbols request
+class DocSymsParams {
+    private String uri;
+    private String activeUri;
+    private String text;
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getActiveUri() {
+        return activeUri;
+    }
+
+    public void setActiveUri(String activeUri) {
+        this.activeUri = activeUri;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+}
+
 // Custom server interface (beyond standard LSP)
 interface IcfhLanguageServer extends LanguageServer {
     @JsonNotification("i_c_fn_head/setLanguage")
@@ -77,6 +109,9 @@ interface IcfhLanguageServer extends LanguageServer {
 
     @JsonRequest("i_c_fn_head/definitions")
     CompletableFuture<List<Location>> definitions(DefinitionsParams params);
+
+    @JsonRequest("i_c_fn_head/documentSymbols")
+    CompletableFuture<List<SymbolInformation>> documentSymbols(DocSymsParams params);
 }
 
 public class _Server implements IcfhLanguageServer, LanguageClientAware {
@@ -207,6 +242,11 @@ public class _Server implements IcfhLanguageServer, LanguageClientAware {
     @Override
     public CompletableFuture<List<Location>> definitions(DefinitionsParams params) {
         return CompletableFuture.supplyAsync(() -> _DefSearch.find(params));
+    }
+
+    @Override
+    public CompletableFuture<List<SymbolInformation>> documentSymbols(DocSymsParams params) {
+        return CompletableFuture.supplyAsync(() -> _DocSyms.symbols(params));
     }
 
     @Override

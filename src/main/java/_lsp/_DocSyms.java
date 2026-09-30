@@ -325,7 +325,8 @@ public class _DocSyms {
                 return false;
             }
             if (start_block != NONE && block_state == 0 && !block_head.name.isEmpty()) {
-                add_symb(symbols, block_head.lnum, i + 1, orig_lines[block_head.lnum], SymbolKind.Function, uri);
+                int head = get_head_lnum(orig_lines, block_head.lnum);
+                add_symb(symbols, head, i + 1, orig_lines[head], SymbolKind.Function, uri);
                 block_head.name = "";
                 start_block = NONE;
                 return true;
@@ -361,6 +362,29 @@ public class _DocSyms {
     }
 
     // ---------------------------------------------------------------- shared
+
+    /**
+     * The line a function symbol should be named after, and the line its range
+     * should start on. block_head lands on the last line seen while outside any
+     * block, which for a signature spread over several lines is the closing
+     * paren rather than the declaration, so walk back to the line that opens
+     * the argument list.
+     */
+    private static int get_head_lnum(String[] orig_lines, int lnum) {
+        for (int i = lnum; i > 0; i--) {
+            String ln = P_EXCLUDE_COMMENTS.matcher(orig_lines[i]).replaceAll("").trim();
+            if (ln.indexOf('(') >= 0) {
+                // a line that opens with "(" is itself a continuation
+                return ln.startsWith("(") ? Math.max(0, i - 1) : i;
+            }
+            // a blank line, a statement end or a closing brace starts a new
+            // construct, so stop rather than wander into unrelated code
+            if (ln.isEmpty() || ln.endsWith(";") || ln.equals("}")) {
+                break;
+            }
+        }
+        return lnum;
+    }
 
     /** _block_head out of faav.ts: remembers the line that opened the block */
     private static class BlockHead {

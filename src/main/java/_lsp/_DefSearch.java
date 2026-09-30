@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -44,14 +45,17 @@ public class _DefSearch {
         }
 
         List<Pattern> rgxs = rgxs(txt, esc(params.getWord()));
-        if (rgxs.isEmpty()) {
-            loggy.w.info("definitions: no //rgx:// command in " + opts);
-            return ret;
+        boolean defaulted = rgxs.isEmpty();
+        if (defaulted) {
+            // no //rgx:// command, fall back to a plain identifier search so
+            // F12 still works on a project that never wrote any
+            rgxs = default_rgxs(params.getWord());
         }
         List<Pattern> excluded = excluded(txt);
         List<Path> files = files(txt, opts.getParent());
         loggy.w.info("definitions: word=" + params.getWord() + " rgxs=" + rgxs.size()
-                + " files=" + files.size() + " excluded=" + excluded.size());
+                + (defaulted ? " (defaulted)" : "") + " files=" + files.size()
+                + " excluded=" + excluded.size());
 
         for (Path file : files) {
             if (ret.size() >= MAX_RESULTS) {
@@ -133,6 +137,24 @@ public class _DefSearch {
             if (p != null) {
                 ret.add(p);
             }
+        }
+        return ret;
+    }
+
+    /**
+     * The search used when the opts file carries no //rgx:// command: the word
+     * as a whole identifier. \b is no good around $ or @, which d and rust
+     * identifiers use, so the lookarounds spell the boundary out instead.
+     */
+    private static List<Pattern> default_rgxs(String word) {
+        List<Pattern> ret = new ArrayList<>();
+        if (word == null || word.isEmpty()) {
+            return ret;
+        }
+        try {
+            ret.add(Pattern.compile("(?<![\\w$@])" + Pattern.quote(word) + "(?![\\w$@])"));
+        } catch (PatternSyntaxException e) {
+            loggy.w.error("definitions: bad default rgx for " + word + ": " + e.getMessage(), e);
         }
         return ret;
     }
